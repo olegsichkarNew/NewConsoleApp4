@@ -93,7 +93,7 @@ JOIN body_pivot bp ON bp.event_id = fe.event_id;
             int globalPeriodIndex = 0;
 
             // (опционально) чтобы не перегружать, можно стартовать с 2..4 и потом расширить
-            for (int k = 2; k <= 4; k++)
+            for (int k = 2; k <= 14; k++)
             {
                 foreach (var combo in Combinations(allBodies, k))
                 {
