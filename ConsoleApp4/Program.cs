@@ -61,7 +61,43 @@ JOIN body_pivot bp ON bp.event_id = fe.event_id;
 
         static void Main(string[] args)
         {
+            var sqlitePath = @"C:\my\myPrj\ConsoleApp4\ConsoleApp4\db\testDB.sqlite";      // <-- твоя БД
+            var eph = new SwissEphEphemeris(
+      ephePath: @"C:\my\myPrj\ConsoleApp4\ConsoleApp4\bin\Debug\net9.0\se",
+      flags: SwissEphNative.SEFLG_SWIEPH | SwissEphNative.SEFLG_SPEED | SwissEphNative.SEFLG_SIDEREAL
+  );
+            var candles1m = ImportBTC.LoadAllMonthlyCandles(@"C:\my\myPrj\ConsoleApp4\ConsoleApp4\data", "BTC-USDT", "1m");
+            var candles30m = ImportBTC.ResampleTo30m(candles1m);
+            ImportBTC.ImportBtc30mToSqlite(sqlitePath, candles30m);
+            // GetPlanetSpeed(sqlitePath, eph);
+            // SearchConjunction();
+        }
 
+        private static void GetPlanetSpeed(string sqlitePath, SwissEphEphemeris eph)
+        {
+            var bodies = new[]
+     {
+            SweBody.Sun, SweBody.Moon, SweBody.Mercury, SweBody.Venus, SweBody.Mars, SweBody.Jupiter, SweBody.Saturn,
+            SweBody.Uranus, SweBody.Neptune, SweBody.Pluto, SweBody.MeanNode, SweBody.TrueNode, SweBody.MeanApog, SweBody.OscuApog
+        };
+
+            var startUtc = new DateTime(2018, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endUtc = new DateTime(2026, 12, 31, 23, 30, 0, DateTimeKind.Utc);
+            var step = TimeSpan.FromMinutes(30);
+            PlanetStateBuilder.BuildPlanetState(
+            eph,
+            sqlitePath,
+            startUtc,
+            endUtc,
+            step,
+            bodies,
+            runId: 1);
+
+            Console.WriteLine("planet_state done.");
+        }
+
+        private static void SearchConjunction()
+        {
             var s = BuildBodyPivotSql();
             var eph = new SwissEphEphemeris(
                 ephePath: @"C:\my\myPrj\ConsoleApp4\ConsoleApp4\bin\Debug\net9.0\se",
